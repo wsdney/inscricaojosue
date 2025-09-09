@@ -94,20 +94,48 @@
         if (result.success) {
           const numero = result.numero;
 
-          // Gera PDF com número da inscrição
+          // === PDF Profissional ===
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF();
-          doc.setFontSize(16);
-          doc.text('Ficha de Inscrição - Encontro JOSUE', 20, 20);
+
+          // Cabeçalho
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(18);
+          doc.text("Ficha de Inscrição - Encontro JOSUE", 105, 20, { align: "center" });
+
           doc.setFontSize(12);
-          let y = 30;
-          doc.text(`Número de Inscrição: ${numero}`, 20, y);
-          y += 10;
+          doc.setFont("helvetica", "normal");
+          doc.line(20, 25, 190, 25); // linha horizontal
+
+          // Número da inscrição em destaque
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(14);
+          doc.text(`Número de Inscrição: ${numero}`, 105, 35, { align: "center" });
+          doc.line(20, 40, 190, 40);
+
+          // Lista dos dados em tabela simples
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "normal");
+
+          let y = 50;
           for (const [key, value] of Object.entries(data)) {
-            doc.text(`${key}: ${value}`, 20, y);
+            doc.text(`${key}:`, 20, y);
+            doc.text(String(value), 70, y);
             y += 8;
+            if (y > 270) { // cria nova página se ultrapassar o limite
+              doc.addPage();
+              y = 20;
+            }
           }
+
+          // Rodapé com data/hora
+          const dataAtual = new Date().toLocaleString("pt-BR");
+          doc.setFontSize(9);
+          doc.text(`Emitido em: ${dataAtual}`, 105, 290, { align: "center" });
+
+          // Salvar PDF
           doc.save(`Ficha_Inscricao_${numero}.pdf`);
+          // ==========================
 
           e.target.reset();
           alert(`Inscrição enviada com sucesso! Seu número é ${numero}. O PDF foi baixado.`);
