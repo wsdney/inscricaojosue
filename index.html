@@ -75,7 +75,7 @@
   </form>
 
   <script>
-    // 🔗 URL do Google Apps Script (já configurada com sua chave)
+    // 🔗 URL do Google Apps Script
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8cxBIVqAa9vSJ707x2kk2ZJBa_6bF6H9tjsEI5iY0Esgq7TekKw17y8PyaCOwP7pk7g/exec";
 
     document.getElementById('formInscricao').addEventListener('submit', async function(e) {
@@ -94,48 +94,57 @@
         if (result.success) {
           const numero = result.numero;
 
-          // === PDF Profissional ===
+          // === PDF Estilizado ===
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF();
 
           // Cabeçalho
           doc.setFont("helvetica", "bold");
-          doc.setFontSize(18);
+          doc.setFontSize(16);
           doc.text("Ficha de Inscrição - Encontro JOSUE", 105, 20, { align: "center" });
+          doc.line(20, 25, 190, 25);
 
+          // Número da inscrição em destaque (caixa cinza)
           doc.setFontSize(12);
-          doc.setFont("helvetica", "normal");
-          doc.line(20, 25, 190, 25); // linha horizontal
-
-          // Número da inscrição em destaque
           doc.setFont("helvetica", "bold");
-          doc.setFontSize(14);
-          doc.text(`Número de Inscrição: ${numero}`, 105, 35, { align: "center" });
-          doc.line(20, 40, 190, 40);
-
-          // Lista dos dados em tabela simples
-          doc.setFontSize(11);
-          doc.setFont("helvetica", "normal");
+          doc.setDrawColor(0);
+          doc.setFillColor(230, 230, 230);
+          doc.rect(70, 30, 70, 10, "F");
+          doc.rect(70, 30, 70, 10);
+          doc.text(`Inscrição Nº: ${numero}`, 105, 37, { align: "center" });
 
           let y = 50;
+
+          // Dados em formato tabela
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "normal");
           for (const [key, value] of Object.entries(data)) {
+            doc.setFont("helvetica", "bold");
             doc.text(`${key}:`, 20, y);
+            doc.setFont("helvetica", "normal");
             doc.text(String(value), 70, y);
             y += 8;
-            if (y > 270) { // cria nova página se ultrapassar o limite
+            if (y > 270) {
               doc.addPage();
               y = 20;
             }
           }
 
-          // Rodapé com data/hora
+          // Linha de assinatura
+          if (y < 250) {
+            y += 20;
+          }
+          doc.line(60, y, 150, y);
+          doc.text("Assinatura", 105, y + 6, { align: "center" });
+
+          // Rodapé
           const dataAtual = new Date().toLocaleString("pt-BR");
           doc.setFontSize(9);
           doc.text(`Emitido em: ${dataAtual}`, 105, 290, { align: "center" });
 
           // Salvar PDF
           doc.save(`Ficha_Inscricao_${numero}.pdf`);
-          // ==========================
+          // ========================
 
           e.target.reset();
           alert(`Inscrição enviada com sucesso! Seu número é ${numero}. O PDF foi baixado.`);
