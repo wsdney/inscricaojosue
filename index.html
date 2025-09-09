@@ -94,28 +94,37 @@
         if (result.success) {
           const numero = result.numero;
 
-          // === PDF Estilizado ===
+          // === PDF Estilizado com LOGO ===
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF();
+
+          // 🔗 Substitua por sua logo hospedada em link público (PNG ou JPG)
+          const logoUrl = "https://i.ibb.co/0nC9Q4k/exemplo-logo.png"; 
+          const img = new Image();
+          img.src = logoUrl;
+          await new Promise(resolve => { img.onload = resolve; });
+
+          // Insere logo no topo (ajuste x, y, largura, altura conforme sua imagem)
+          doc.addImage(img, "PNG", 85, 5, 40, 15);
 
           // Cabeçalho
           doc.setFont("helvetica", "bold");
           doc.setFontSize(16);
-          doc.text("Ficha de Inscrição - Encontro JOSUE", 105, 20, { align: "center" });
-          doc.line(20, 25, 190, 25);
+          doc.text("Ficha de Inscrição - Encontro JOSUE", 105, 25, { align: "center" });
+          doc.line(20, 30, 190, 30);
 
-          // Número da inscrição em destaque (caixa cinza)
+          // Número da inscrição em destaque
           doc.setFontSize(12);
           doc.setFont("helvetica", "bold");
           doc.setDrawColor(0);
           doc.setFillColor(230, 230, 230);
-          doc.rect(70, 30, 70, 10, "F");
-          doc.rect(70, 30, 70, 10);
-          doc.text(`Inscrição Nº: ${numero}`, 105, 37, { align: "center" });
+          doc.rect(70, 35, 70, 10, "F");
+          doc.rect(70, 35, 70, 10);
+          doc.text(`Inscrição Nº: ${numero}`, 105, 42, { align: "center" });
 
-          let y = 50;
+          let y = 55;
 
-          // Dados em formato tabela
+          // Dados formatados
           doc.setFontSize(11);
           doc.setFont("helvetica", "normal");
           for (const [key, value] of Object.entries(data)) {
