@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Ficha de Inscrição - Encontro JOSUE</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; margin: 20px; }
+    form { background: #fff; padding: 20px; border-radius: 8px; max-width: 700px; margin: auto; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
+    .radio-group { display: flex; gap: 20px; margin-top: 5px; }
+    button { margin-top: 20px; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">Ficha de Inscrição - Encontro JOSUE</h1>
+  <form id="formInscricao">
+    <label>Nome:</label>
+    <input type="text" name="nome" required>
+
+    <label>Endereço:</label>
+    <input type="text" name="endereco" required>
+
+    <label>Cidade:</label>
+    <input type="text" name="cidade" required>
+
+    <label>Data de Nascimento:</label>
+    <input type="date" name="nascimento" required>
+
+    <label>Estado Civil:</label>
+    <div class="radio-group">
+      <label><input type="radio" name="estadoCivil" value="Solteiro(a)" required> Solteiro(a)</label>
+      <label><input type="radio" name="estadoCivil" value="Casado(a)"> Casado(a)</label>
+    </div>
+
+    <label>Telefone:</label>
+    <input type="tel" name="telefone" required>
+
+    <label>Celular:</label>
+    <input type="tel" name="celular" required>
+
+    <label>Contato 1:</label>
+    <input type="text" name="contato1" required>
+
+    <label>Contato 2:</label>
+    <input type="text" name="contato2" required>
+
+    <label>Faz parte de igreja evangélica?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="igrejaEvangelica" value="Sim" required> Sim</label>
+      <label><input type="radio" name="igrejaEvangelica" value="Não"> Não</label>
+    </div>
+
+    <label>Qual igreja?</label>
+    <input type="text" name="nomeIgreja" required>
+
+    <label>Já fez o Encontro com Deus?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="encontroComDeus" value="Sim" required> Sim</label>
+      <label><input type="radio" name="encontroComDeus" value="Não"> Não</label>
+    </div>
+
+    <label>Faz uso de medicamento controlado?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="medicamentoControlado" value="Sim" required> Sim</label>
+      <label><input type="radio" name="medicamentoControlado" value="Não"> Não</label>
+    </div>
+
+    <label>Horários da medicação:</label>
+    <textarea name="horariosMedicacao" rows="3" required></textarea>
+
+    <button type="submit">Enviar Inscrição</button>
+  </form>
+
+  <script>
+    // 🔗 URL do Google Apps Script (já configurada)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8cxBIVqAa9vSJ707x2kk2ZJBa_6bF6H9tjsEI5iY0Esgq7TekKw17y8PyaCOwP7pk7g/exec";
+
+    document.getElementById('formInscricao').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+
+      try {
+        const resp = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        const result = await resp.json();
+
+        if (result.success) {
+          const numero = result.numero;
+
+          // Gera PDF com número da inscrição
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          doc.setFontSize(16);
+          doc.text('Ficha de Inscrição - Encontro JOSUE', 20, 20);
+          doc.setFontSize(12);
+          let y = 30;
+          doc.text(`Número de Inscrição: ${numero}`, 20, y);
+          y += 10;
+          for (const [key, value] of Object.entries(data)) {
+            doc.text(`${key}: ${value}`, 20, y);
+            y += 8;
+          }
+          doc.save(`Ficha_Inscricao_${numero}.pdf`);
+
+          e.target.reset();
+          alert(`Inscrição enviada com sucesso! Seu número é ${numero}. O PDF foi baixado.`);
+        } else {
+          alert('Erro ao enviar inscrição: ' + result.error);
+        }
+      } catch (err) {
+        alert('Falha na conexão com o servidor.');
+      }
+    });
+  </script>
+</body>
+</html>
